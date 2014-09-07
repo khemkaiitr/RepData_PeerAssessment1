@@ -7,13 +7,34 @@ output:
 
 
 ## Loading and preprocessing the data
-
-
+```{r}
+data = read.csv("activity.csv")
+dateofData = as.Date(data[,2], format ="%Y-%m-%d")
+monthdayofData  <- format(dateofData, "%m-%d")
+dayofData  <- weekdays(dateofData, abbreviate = TRUE)
+data[,c(2,4,5)]  <-  cbind(as.character(dateofData), monthdayofData, dayofData)
+names(data)[4]  <- cbind("month.day")
+names(data)[5]  <- "weekday"
+head(data)
+```
 
 ## What is mean total number of steps taken per day?
+Ignoring the missing part of data for this analysis
+```{r}
+library("reshape2")
+library("ggplot2")
+temp  <- melt(data[,c(1,4)], id = "month.day", measure.vars = "steps", na.rm = TRUE)
+totalStepsDay  <- dcast(temp, month.day~variable, sum)
+meanStepsDay  <- dcast(temp, month.day~variable, mean)
+medianStepsDay  <-na.omit(sapply(split(data$steps,data$month.day), median, na.rm = TRUE))
+# Plot total number of steps in a particular day of a month
+c  <- ggplot(totalStepsDay, aes(x =month.day, y = steps))
+c + geom_bar(stat ="identity", fill = "red")+theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Total steps per day")
+# print median and mean steps per day
+cbind(meanStepsDay, medianStepsDay)
+# Plot mean and median activity
 
-
-
+```
 ## What is the average daily activity pattern?
 
 
