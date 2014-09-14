@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
@@ -46,7 +41,7 @@ c  <- ggplot(totalStepsDay, aes(x =month.day, y = steps))
 c + geom_bar(stat ="identity", fill = "red")+theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Total steps per day")
 ```
 
-![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+![plot of chunk unnamed-chunk-2](./PA1_template_files/figure-html/unnamed-chunk-2.png) 
 
 ```r
 # print median and mean steps per day
@@ -121,7 +116,7 @@ c <- ggplot(stepsOverInterval, aes(x = interval, y = steps, col = "red"))
 c+ geom_line(aes(group = 1))+theme(axis.text.x = element_text(angle = 90, hjust = 1.5))+ labs(title = "Average number of steps over each 5 min interval")+scale_colour_manual(values=c("red"),labels=c("Average_Activity"))+labs(colour = "steps")
 ```
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+![plot of chunk unnamed-chunk-3](./PA1_template_files/figure-html/unnamed-chunk-3.png) 
 
 ```r
 intervalMaxSteps  <- stepsOverInterval[which.max(stepsOverInterval[,2]),1]
@@ -170,7 +165,7 @@ c  <- ggplot(totalStepsDay, aes(x =month.day, y = steps))
 c + geom_bar(stat ="identity", fill = "red")+theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Total steps per day")
 ```
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+![plot of chunk unnamed-chunk-4](./PA1_template_files/figure-html/unnamed-chunk-4.png) 
 
 ```r
 cbind(meanStepsDay, medianStepsDay)
@@ -255,4 +250,4 @@ g  <- ggplot(weekSteps, aes(interval, steps, color = wend))
 g+geom_line(aes(group = wend)) +labs(title = "Average steps during weekend and weekday")+theme(axis.text.x = element_text(angle = 90, hjust = 1))+facet_grid(wend~.)
 ```
 
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
+![plot of chunk unnamed-chunk-5](./PA1_template_files/figure-html/unnamed-chunk-5.png) 
