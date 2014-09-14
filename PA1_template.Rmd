@@ -9,10 +9,12 @@ output:
 ## Loading and preprocessing the data
 ```{r}
 data = read.csv("activity.csv")
+intervals  <- strptime(sprintf("%04d", data[,3]), "%H%M")
+interval  <- format(intervals, format ="%H:%M")
 dateofData = as.Date(data[,2], format ="%Y-%m-%d")
 monthdayofData  <- format(dateofData, "%m-%d")
 dayofData  <- weekdays(dateofData, abbreviate = TRUE)
-data[,c(2,4,5)]  <-  cbind(as.character(dateofData), monthdayofData, dayofData)
+data[,c(2:5)]  <-  cbind(as.character(dateofData), interval,monthdayofData, dayofData)
 names(data)[4]  <- cbind("month.day")
 names(data)[5]  <- "weekday"
 head(data)
@@ -32,15 +34,58 @@ c  <- ggplot(totalStepsDay, aes(x =month.day, y = steps))
 c + geom_bar(stat ="identity", fill = "red")+theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Total steps per day")
 # print median and mean steps per day
 cbind(meanStepsDay, medianStepsDay)
-# Plot mean and median activity
-
 ```
 ## What is the average daily activity pattern?
-
-
+### Removing NA values from the analysis
+```{r , fig.width= 20, fig.height= 6}
+library("reshape2")
+temp  <- melt(data[,c(1,3)], id = "interval", measure.var = "steps", na.rm = TRUE)
+stepsOverInterval  <- dcast(temp, interval~variable, mean)
+# Plot average number of steps for each interval
+c <- ggplot(stepsOverInterval, aes(x = interval, y = steps, col = "red")) 
+c+ geom_line(aes(group = 1))+theme(axis.text.x = element_text(angle = 90, hjust = 1.5))+ labs(title = "Average number of steps over each 5 min interval")+scale_colour_manual(values=c("red"),labels=c("Average_Activity"))+labs(colour = "steps")
+intervalMaxSteps  <- stepsOverInterval[which.max(stepsOverInterval[,2]),1]
+```
+Interval `r intervalMaxSteps` (hr:min) has the maximum number of average steps. The maximum averaged steps are `r max(stepsOverInterval[,2])`.
 
 ## Imputing missing values
+### Replaced missing values by mean over that interval
+```{r}
+numNA  <- sum(is.na(data[,1]))
+# replace missing values by mean
+for(i in 1:dim(data)[1])
+  {
+  if (is.na(data$steps[i]))
+    {
+    actInterval  <-  data$interval[i]
+    intervalMean  <- stepsOverInterval[stepsOverInterval$interval == actInterval,2]
+    data$steps[i]  <- intervalMean
+    }
+  }
 
+nData  <- read.csv("activity.csv")
+nData$steps  <- data$steps
+head(nData)
+# Histogram of total numver of steps each day
+temp  <- melt(data[,c(1,4)], id = "month.day", measure.vars = "steps")
+totalStepsDay  <- dcast(temp, month.day~variable, sum)
+meanStepsDay  <- dcast(temp, month.day~variable, mean)
+medianStepsDay  <-na.omit(sapply(split(data$steps,data$month.day), median))
+# Plot total number of steps in a particular day of a month
+c  <- ggplot(totalStepsDay, aes(x =month.day, y = steps))
+c + geom_bar(stat ="identity", fill = "red")+theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Total steps per day")
+cbind(meanStepsDay, medianStepsDay)
+```
 
+### Observations
+Number of missing values (NA) = `r numNA`.
+Mean and median Values differ from the estimates when NA values were not removed. Mean values changes signficantly after filling the missing values however median for most of the cases is still zero which might be due to large number of zeros in the data. Having a zero means that the person did not do any activitity during these intervals (e.g. sleeping)
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r, fig.width= 20, fig.height= 10}
+data$wend<- as.factor(ifelse(data$weekday %in% c("Sat","Sun"), "Weekend", "Weekday")) 
+temp  <- melt(data[,c(1,3,6)], measure.var ="steps", id = c("wend", "interval"))
+weekSteps  <- dcast(temp, wend+interval~variable, mean)
+g  <- ggplot(weekSteps, aes(interval, steps, color = wend))
+g+geom_line(aes(group = wend)) +labs(title = "Average steps during weekend and weekday")+theme(axis.text.x = element_text(angle = 90, hjust = 1))+facet_grid(wend~.)
+```
