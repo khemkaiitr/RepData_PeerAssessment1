@@ -18,6 +18,8 @@ data[,c(2:5)]  <-  cbind(as.character(dateofData), interval,monthdayofData, dayo
 names(data)[4]  <- cbind("month.day")
 names(data)[5]  <- "weekday"
 head(data)
+
+data_noMissing  <- data[!is.na(data$steps),]
 ```
 
 ## What is mean total number of steps taken per day?
@@ -26,14 +28,16 @@ Ignoring the missing part of data for this analysis
 library("reshape2")
 library("ggplot2")
 temp  <- melt(data[,c(1,4)], id = "month.day", measure.vars = "steps", na.rm = TRUE)
-totalStepsDay  <- dcast(temp, month.day~variable, sum)
 meanStepsDay  <- dcast(temp, month.day~variable, mean)
-medianStepsDay  <-na.omit(sapply(split(data$steps,data$month.day), median, na.rm = TRUE))
+totalStepsDay  <- dcast(temp, month.day~variable, sum)
+medianStepsDay  <-sapply(split(data_noMissing$steps,data_noMissing$date), median)
 # Plot total number of steps in a particular day of a month
-c  <- ggplot(totalStepsDay, aes(x =month.day, y = steps))
+c  <- ggplot(totalStepsDay , aes(x =month.day, y = steps))
 c + geom_bar(stat ="identity", fill = "red")+theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Total steps per day")
+
+hist(totalStepsDay $steps, xlab = "Number of steps", main = "Frequency of total no of steps each day")
 # print median and mean steps per day
-cbind(meanStepsDay, medianStepsDay)
+cbind(meanSteps = meanStepsDay$steps, medianSteps = medianStepsDay)
 ```
 ## What is the average daily activity pattern?
 ### Removing NA values from the analysis
@@ -42,8 +46,10 @@ library("reshape2")
 temp  <- melt(data[,c(1,3)], id = "interval", measure.var = "steps", na.rm = TRUE)
 stepsOverInterval  <- dcast(temp, interval~variable, mean)
 # Plot average number of steps for each interval
+my_breaks <- interval[seq(1, length(interval), 30)]
 c <- ggplot(stepsOverInterval, aes(x = interval, y = steps, col = "red")) 
-c+ geom_line(aes(group = 1))+theme(axis.text.x = element_text(angle = 90, hjust = 1.5))+ labs(title = "Average number of steps over each 5 min interval")+scale_colour_manual(values=c("red"),labels=c("Average_Activity"))+labs(colour = "steps")
+c+ geom_line(aes(group = 1), size = 1)+theme(axis.text.x = element_text(angle = 90, hjust = 1.5, size = 15, face = "bold"))+ labs(title = "Average number of steps over each 5 min interval")+scale_colour_manual(values=c("red"),labels=c("Average_Activity"))+labs(colour = "steps")+scale_x_discrete(breaks=my_breaks) +theme(axis.text.y = element_text(size = 15, face="bold"))
+
 intervalMaxSteps  <- stepsOverInterval[which.max(stepsOverInterval[,2]),1]
 ```
 Interval `r intervalMaxSteps` (hr:min) has the maximum number of average steps. The maximum averaged steps are `r max(stepsOverInterval[,2])`.
@@ -74,6 +80,8 @@ medianStepsDay  <-na.omit(sapply(split(data$steps,data$month.day), median))
 # Plot total number of steps in a particular day of a month
 c  <- ggplot(totalStepsDay, aes(x =month.day, y = steps))
 c + geom_bar(stat ="identity", fill = "red")+theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Total steps per day")
+
+hist(totalStepsDay$steps, xlab = "Number of steps", main = "Frequency of total no of steps each day")
 cbind(meanStepsDay, medianStepsDay)
 ```
 
@@ -87,5 +95,5 @@ data$wend<- as.factor(ifelse(data$weekday %in% c("Sat","Sun"), "Weekend", "Weekd
 temp  <- melt(data[,c(1,3,6)], measure.var ="steps", id = c("wend", "interval"))
 weekSteps  <- dcast(temp, wend+interval~variable, mean)
 g  <- ggplot(weekSteps, aes(interval, steps, color = wend))
-g+geom_line(aes(group = wend)) +labs(title = "Average steps during weekend and weekday")+theme(axis.text.x = element_text(angle = 90, hjust = 1))+facet_grid(wend~.)
+g+geom_line(aes(group = wend), size = 1) +labs(title = "Average steps during weekend and weekday")+theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15, face = "bold"))+facet_grid(wend~.)+scale_x_discrete(breaks=my_breaks)+theme(axis.text.y = element_text(size = 15, face="bold"))
 ```
