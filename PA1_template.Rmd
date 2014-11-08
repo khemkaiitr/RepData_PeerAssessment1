@@ -95,5 +95,5 @@ data$wend<- as.factor(ifelse(data$weekday %in% c("Sat","Sun"), "Weekend", "Weekd
 temp  <- melt(data[,c(1,3,6)], measure.var ="steps", id = c("wend", "interval"))
 weekSteps  <- dcast(temp, wend+interval~variable, mean)
 g  <- ggplot(weekSteps, aes(interval, steps, color = wend))
-g+geom_line(aes(group = wend), size = 1) +labs(title = "Average steps during weekend and weekday")+theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15, face = "bold"))+facet_grid(wend~.)+scale_x_discrete(breaks=my_breaks)+theme(axis.text.y = element_text(size = 15, face="bold"))
+g+geom_line(aes(group = wend), size = 1) +labs(title = "Average steps during weekend and weekday")+theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15, face = "bold"))+facet_wrap( ~ wend, nrow = 2, ncol = 1)+scale_x_discrete(breaks=my_breaks)+theme(axis.text.y = element_text(size = 15, face="bold"))
 ```

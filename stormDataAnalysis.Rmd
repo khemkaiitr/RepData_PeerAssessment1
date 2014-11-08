@@ -1,0 +1,20 @@
+---
+title: "Analysis of effect of different events of stroms to health and economy across the United States from NOAA stroms datasets"
+author: "Saurabh"
+date: "26 Oct 2014"
+
+---
+## Synopsis
+The U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database available for analysis tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage. The events in the database start in the year 1950 and end in November 2011.
+
+```{r}
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
